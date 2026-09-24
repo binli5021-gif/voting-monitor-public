@@ -1,0 +1,7 @@
+node_modules/
+runtime/
+data/people.local.json
+.DS_Store
+3614.xlsx
+~$3614.xlsx
+.vercel
