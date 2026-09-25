@@ -4,7 +4,8 @@
   "private": true,
   "description": "投票登记与实时统计系统",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "start:demo": "ALLOW_DEMO_PASSWORDS=true node server.js"
   },
   "dependencies": {
     "xlsx": "^0.18.5"

@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
-const XLSX = require('xlsx');
 
 const ROOT = __dirname;
 const PUBLIC = path.join(ROOT, 'public');
@@ -33,6 +32,17 @@ const sessions = new Map();
 const pendingImports = new Map();
 const eventClients = new Set();
 let writeQueue = Promise.resolve();
+let XLSX;
+
+function excelLibrary() {
+  if (XLSX) return XLSX;
+  try {
+    XLSX = require('xlsx');
+    return XLSX;
+  } catch {
+    throw new Error('缺少 Excel 导入依赖，请在仓库目录执行 npm install 后重试');
+  }
+}
 
 function replacePeople(nextPeople) {
   people = nextPeople;
@@ -111,15 +121,16 @@ function readImportFile(req) {
 }
 
 function parsePeopleImport(buffer) {
+  const xlsx = excelLibrary();
   let workbook;
   try {
-    workbook = XLSX.read(buffer, { type: 'buffer', raw: false });
+    workbook = xlsx.read(buffer, { type: 'buffer', raw: false });
   } catch {
     throw new Error('文件不是有效的 Excel 工作簿');
   }
   const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
   if (!firstSheet) throw new Error('Excel 中没有找到工作表');
-  const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '', raw: false });
+  const rows = xlsx.utils.sheet_to_json(firstSheet, { header: 1, defval: '', raw: false });
   const headers = (rows.shift() || []).map((value) => String(value).replace(/^\uFEFF/, '').trim().toLowerCase());
   const aliases = {
     '编号': 'id', id: 'id',
@@ -296,6 +307,15 @@ const server = http.createServer(async (req, res) => {
   } catch (error) {
     sendJson(res, error.statusCode || 500, { error: error.message || '服务器错误' });
   }
+});
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`端口 ${PORT} 已被占用，请换端口启动，例如：PORT=8788 npm run start:demo`);
+  } else {
+    console.error('投票系统启动失败：', error.message);
+  }
+  process.exitCode = 1;
 });
 
 server.listen(PORT, '0.0.0.0', () => console.log(`投票系统已启动：http://localhost:${PORT}`));
