@@ -21,11 +21,11 @@
 
 ### 桌面端完整页面
 
-![投票登记与实时统计桌面端完整页面](docs/main-page.png)
+<img src="docs/main-page.png" alt="投票登记与实时统计桌面端完整页面" width="900">
 
 ### 手机端完整页面
 
-![投票登记与实时统计手机端完整页面](docs/main-page-mobile.png)
+<img src="docs/main-page-mobile.png" alt="投票登记与实时统计手机端完整页面" width="390">
 
 ## 功能
 
